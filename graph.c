@@ -2,7 +2,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
 
 // Returns 1 if line contained a valid edge, 0 otherwise.
 // On success, writes the two endpoints into *in_node and *out_node.
@@ -39,7 +38,7 @@ static void set_edge_and_vertex_counts(Graph* g, FILE* file)
         if (out_node > max) max = out_node;
     }
     g->edge_count = edges;
-    g->vertex_count = max;
+    g->vertex_count = max + 1;
     free(line);
 }
 
@@ -51,8 +50,6 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
     uint64_t max = 0, edges = 0, in_node, out_node, prev_node = -1;
     while (getline(&line, &n, file) != -1) {
         if (!parse_edge(line, &in_node, &out_node)) continue;
-        if (in_node > max) max = in_node;
-        if (out_node > max) max = out_node;
         /* CSR logic: we make a list of all outgoing edges, and if we are starting a new node, 
          * record in `offsets` the index of where itd in bs neighbors begin in `edges`. */
         g->edges[edges] = out_node;
@@ -68,8 +65,10 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
         prev_node = in_node;
         edges++;
     }
-    g->edge_count = edges;
-    g->vertex_count = max + 1;
+    /* Fill any trailing nodes that had no outgoing edges */
+    for (uint64_t i = prev_node + 1; i < g->vertex_count; i++) {
+        g->offsets[i] = g->edge_count;
+    }
     // Sentinel to allow `g->offsets[in_node + 1]` to always work
     g->offsets[g->vertex_count] = g->edge_count;
     free(line);
@@ -81,7 +80,6 @@ Graph* init_graph(FILE* file)
     if (!g) exit(EXIT_FAILURE);
     set_edge_and_vertex_counts(g, file);
     rewind(file);
-    printf("Vertex max: %"PRId64". Edge count: %"PRId64".\n", g->vertex_count, g->edge_count);
     g->edges = calloc(g->edge_count, sizeof(uint64_t));
     g->offsets = calloc(g->vertex_count + 1, sizeof(uint64_t)); // includes sentinel at end
     if (!g->edges || !g->offsets) exit(EXIT_FAILURE);
