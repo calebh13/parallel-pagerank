@@ -6,7 +6,7 @@
 static int edge_exists(Graph* g, uint64_t in_node, uint64_t out_node)
 {
     uint64_t start = g->offsets[in_node];
-    uint64_t end = (in_node + 1 <= g->vertex_count) ? g->offsets[in_node + 1] : g->edge_count;
+    uint64_t end = g->offsets[in_node + 1];
     for (uint64_t i = start; i < end; i++) {
         if (g->edges[i] == out_node) return 1;
     }
