@@ -65,7 +65,7 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
         prev_node = in_node;
         edges++;
     }
-    /* Fill any trailing nodes that had no outgoing edges */
+    // Fill any trailing nodes that had no outgoing edges
     for (uint64_t i = prev_node + 1; i < g->vertex_count; i++) {
         g->offsets[i] = g->edge_count;
     }
