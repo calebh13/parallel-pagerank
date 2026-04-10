@@ -1,3 +1,20 @@
+#ifndef GRAPH
+#define GRAPH
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef struct graph {
+    uint64_t* edges;
+    uint64_t* offsets;
+    size_t vertex_count;
+    size_t edge_count;
+} Graph;
+  
+int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node);
+Graph* init_graph(FILE* file);
+void free_graph(Graph* g);
+
 /* 
  * Instead of making a list of nodes, where each node has an adjacency list,
  * we will use compressed sparse row format.
@@ -40,3 +57,4 @@
  * Once they are "compressed" into that range, and the edges/offsets are built accordingly, the algorithm
  * proceeds as normal - this is just an additional upfront cost.
  */
+#endif

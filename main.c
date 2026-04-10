@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "graph.h"
+#include "test_graph.h"
+
 typedef unsigned long long ull;
 
 int main(int argc, char* argv[])
@@ -44,7 +47,8 @@ int main(int argc, char* argv[])
 
     printf("K = %llu, D = %f, filename = %s\n", K, D, filename);
 
-    // TODO: build `edges` and `offsets` from the file
+    Graph* g = init_graph(file);
+    test_graph(g, file);
 
     fclose(file);
     return 0;
