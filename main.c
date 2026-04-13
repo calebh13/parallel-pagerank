@@ -48,8 +48,9 @@ int main(int argc, char* argv[])
 
     printf("K = %llu, D = %f, filename = %s\n", K, D, filename);
 
+    printf("Building graph.\n");
     Graph* g = init_graph(file);
-    printf("Vertex count: %"PRId64". Edge count: %"PRId64".\n", g->vertex_count, g->edge_count);
+    printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", g->vertex_count, g->edge_count);
     test_graph(g, file);
 
     fclose(file);
