@@ -32,10 +32,20 @@ int main(int argc, char* argv[])
                 exit(EXIT_FAILURE);
         }
     }
+    
+    if (K == 0) {
+        fprintf(stderr, "%s: missing -k argument\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    if (D == 0.0) {
+        fprintf(stderr, "%s: missing -d argument\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
 
     // after options, the remaining argument should be the filename
     if (optind >= argc) {
-        fprintf(stderr, "Expected filename after options\n");
+        fprintf(stderr, "%s: expected filename after options\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     filename = argv[optind];
