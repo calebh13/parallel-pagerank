@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    printf("K = %llu, D = %f, filename = %s\n", K, D, filename);
+    printf("K = %"PRIu64", D = %f, filename = %s\n", K, D, filename);
 
     printf("Building graph.\n");
     Graph* g = init_graph(file);
