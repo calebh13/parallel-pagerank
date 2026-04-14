@@ -7,11 +7,9 @@
 #include "graph.h"
 #include "test_graph.h"
 
-typedef unsigned long long ull;
-
 int main(int argc, char* argv[])
 {
-    ull K = 0;
+    uint64_t K = 0;
     double D = 0.0;
     char* filename = NULL;
     int opt;
@@ -20,7 +18,7 @@ int main(int argc, char* argv[])
     while ((opt = getopt(argc, argv, "k:d:")) != -1) {
         switch (opt) {
             case 'k':
-                K = strtoull(optarg, NULL, 10);
+                K = (uint64_t)strtoull(optarg, NULL, 10);
                 break;
             case 'd':
                 D = strtod(optarg, NULL);
