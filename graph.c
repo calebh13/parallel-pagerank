@@ -49,7 +49,7 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
 {
     char* line = NULL;
     size_t n = 1;
-    uint64_t max = 0, edges = 0, in_node, out_node, prev_node = -1;
+    uint64_t edges = 0, in_node, out_node, prev_node = -1;
     while (getline(&line, &n, file) != -1) {
         if (!parse_edge(line, &in_node, &out_node)) continue;
         /* CSR logic: we make a list of all outgoing edges, and if we are starting a new node, 
