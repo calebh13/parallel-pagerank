@@ -4,11 +4,6 @@
 
 #include "xorshift.h"
 
-struct XorshiftState {
-    uint64_t x;
-    uint64_t y;
-};
-
 void seed_state(XorshiftState* state, int tid)
 {
     unsigned int seed = (unsigned int)time(NULL) ^ tid;

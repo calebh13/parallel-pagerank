@@ -14,6 +14,7 @@ typedef struct graph {
 int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node);
 Graph* init_graph(FILE* file);
 void free_graph(Graph* g);
+void calculate_pageranks(Graph* G, uint64_t* pageranks,  double d, uint64_t k);
 
 /* 
  * Instead of making a list of nodes, where each node has an adjacency list,

@@ -7,6 +7,11 @@
 #include "graph.h"
 #include "test_graph.h"
 
+int cmp(const uint64_t* a, const uint64_t* b)
+{
+    return (*a > *b) - (*a < *b);
+}
+
 int main(int argc, char* argv[])
 {
     uint64_t K = 0;
@@ -58,9 +63,17 @@ int main(int argc, char* argv[])
     printf("K = %"PRIu64", D = %f, filename = %s\n", K, D, filename);
 
     printf("Building graph.\n");
-    Graph* g = init_graph(file);
-    printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", g->vertex_count, g->edge_count);
-    test_graph(g, file);
+    Graph* G = init_graph(file); 
+    printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", G->vertex_count, G->edge_count);
+    test_graph(G, file);
+
+    uint64_t* pageranks = calloc(G->vertex_count, sizeof(uint64_t));
+
+    calculate_pageranks(G, pageranks, D, K);
+    // qsort(pageranks, G->vertex_count, sizeof(uint64_t), cmp);
+    for(uint64_t i = 0; i < G->vertex_count / 10; i++) {
+        printf("pr[%"PRIu64"] = %"PRIu64"\n", i, pageranks[i]);
+    }
 
     fclose(file);
     return 0;

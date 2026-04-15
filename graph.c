@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <omp.h>
+#include "xorshift.h"
 #include <stdbool.h>
 
 // Returns 1 if line contained a valid edge, 0 otherwise.
@@ -76,38 +77,45 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
     free(line);
 }
 
-int random_num(){
-    return 0;
-}
 
-void calculate_pageranks(Graph* G, uint64_t* occurances,  double d, uint64_t k){
+void calculate_pageranks(Graph* G, uint64_t* pageranks,  double d, uint64_t k){
     omp_set_num_threads(omp_get_num_procs());
     
     // Each thread should get a chunk of the array. We know how long the array is, and all chunks are equal work, so just use static scheduling
-    #pragma omp parallel for schedule(static)
-    for(uint64_t i = 0; i < G->vertex_count; i++){
-        uint64_t curnode = i;
+    #pragma omp parallel
+    {     
+        XorshiftState state;
+        seed_state(&state, omp_get_thread_num());
 
-        // Repeats for the number of steps in the walk
-        for(uint64_t walk_len = 0; walk_len < k; walk_len++){
-            uint64_t num_neighbors = G->offsets[curnode + 1] - G->offsets[curnode];
-            if(num_neighbors < 1) break; //If this is a childless node, stop the walk after reaching a dead end.
+        #pragma omp for schedule(static)
+        for(uint64_t i = 0; i < G->vertex_count; i++){
+            uint64_t curnode = i;
 
-            // If we land on tails, then we look to neighbors. Otherwise, Grab a random node
-            bool tails = random_num() > d;
+            // Repeats for the number of steps in the walk
+            for(uint64_t walk_len = 0; walk_len < k; walk_len++){
+                uint64_t num_neighbors = G->offsets[curnode + 1] - G->offsets[curnode];
+                if(num_neighbors < 1) {
+                    // this functionality needs to be checked with ananth. for now, we jump
+                    // we could also do coin flip here and if tails stay and NOT increment pagerank
+                    // and if heads jump.
 
-            if(tails){
-                uint64_t neighbor = random_num() % num_neighbors;
-                curnode = G->edges[
-                                G->offsets[curnode] +
-                                neighbor
-                ];
-            } else {
-                curnode = random_num() % G->vertex_count;
+                    curnode = random_u64(&state) % G->vertex_count;
+                    continue;
+                }
+
+                // If we land on tails, then we look to neighbors. Otherwise, Grab a random node
+                bool tails =  random_double(&state) > d;
+
+                if(tails){
+                    uint64_t neighbor = random_u64(&state) % num_neighbors;
+                    curnode = G->edges[G->offsets[curnode] + neighbor];
+                } else {
+                    curnode = random_u64(&state) % G->vertex_count;
+                }
+
+                #pragma omp atomic update
+                pageranks[curnode]++;
             }
-
-            #pragma omp atomic
-            occurances[curnode]++;
         }
     }
 }
