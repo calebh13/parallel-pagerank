@@ -126,8 +126,13 @@ Graph* init_graph(FILE* file)
     if (!g) exit(EXIT_FAILURE);
     set_edge_and_vertex_counts(g, file);
     rewind(file);
-    g->edges = calloc(g->edge_count, sizeof(uint64_t));
-    g->offsets = calloc(g->vertex_count + 1, sizeof(uint64_t)); // includes sentinel at end
+    if (g->edge_count > UINT64_MAX || g->vertex_count > UINT64_MAX) {
+        uint64_t larger = (g->edge_count > g->vertex_count) ? g->edge_count : g->vertex_count;
+        fprintf(stderr, "error: too many vertices or edges (%"PRIu64") for size_t (%zu)", larger, SIZE_MAX);
+        exit(EXIT_FAILURE);
+    }
+    g->edges = calloc((size_t)g->edge_count, sizeof(uint64_t));
+    g->offsets = calloc((size_t)g->vertex_count + 1, sizeof(uint64_t)); // includes sentinel at end
     if (!g->edges || !g->offsets) exit(EXIT_FAILURE);
     build_edges_and_offsets(g, file);
     rewind(file);

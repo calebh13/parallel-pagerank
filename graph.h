@@ -7,8 +7,8 @@
 typedef struct graph {
     uint64_t* edges;
     uint64_t* offsets;
-    size_t vertex_count;
-    size_t edge_count;
+    uint64_t vertex_count;
+    uint64_t edge_count;
 } Graph;
   
 int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node);
