@@ -2,10 +2,10 @@
 
 /* This heap is 1-indexed! */
 
-// If initial_capacity is negative, then it is ignored
-MaxHeap* MaxHeap_init(size_t initial_capacity)
+// If initial_capacity is not positive, then it is ignored
+MinHeap* MinHeap_init(size_t initial_capacity)
 {
-    MaxHeap* heap = malloc(sizeof(MaxHeap));
+    MinHeap* heap = malloc(sizeof(MinHeap));
     if (!heap) exit(EXIT_FAILURE);
     heap->cur_size = 0;
     heap->max_size = (initial_capacity > 0) ? initial_capacity : 8; // default val
@@ -14,21 +14,25 @@ MaxHeap* MaxHeap_init(size_t initial_capacity)
     return heap;
 }
 
-void MaxHeap_insert(MaxHeap* heap, void* x, int (*cmp)(const void *, const void *))
+void MinHeap_insert(MinHeap* heap, void* x, int (*cmp)(const void *, const void *))
 {
     if (heap->cur_size == heap->max_size) {
         heap->max_size *= 2;
         heap->arr = realloc(heap->arr, (heap->max_size + 1) * sizeof(void*));        
         if (!heap->arr) exit(EXIT_FAILURE);
     }
+
     size_t pos = ++heap->cur_size;
-    for (; pos > 1 && cmp(x, heap->arr[pos / 2]) > 0; pos /= 2) {
+
+    // bubble up smaller values
+    for (; pos > 1 && cmp(x, heap->arr[pos / 2]) < 0; pos /= 2) {
         heap->arr[pos] = heap->arr[pos / 2];
     }
+
     heap->arr[pos] = x;
 }
 
-void* MaxHeap_pop(MaxHeap* heap, int (*cmp)(const void *, const void *))
+void* MinHeap_pop(MinHeap* heap, int (*cmp)(const void *, const void *))
 {
     if (heap->cur_size == 0) exit(EXIT_FAILURE);
 
@@ -41,11 +45,11 @@ void* MaxHeap_pop(MaxHeap* heap, int (*cmp)(const void *, const void *))
     while (pos * 2 <= heap->cur_size) {
         child = pos * 2;
 
-        // pick larger child
-        if (child < heap->cur_size && cmp(heap->arr[child + 1], heap->arr[child]) > 0) {
+        // pick smaller child
+        if (child < heap->cur_size && cmp(heap->arr[child + 1], heap->arr[child]) < 0) {
             child++;
         }
-        if (cmp(last_elem, heap->arr[child]) >= 0) break;
+        if (cmp(last_elem, heap->arr[child]) <= 0) break;
         heap->arr[pos] = heap->arr[child];
         pos = child;
     }
@@ -54,7 +58,12 @@ void* MaxHeap_pop(MaxHeap* heap, int (*cmp)(const void *, const void *))
     return max;
 }
 
-void* MaxHeap_peek(MaxHeap* heap)
+void* MinHeap_peek(MinHeap* heap)
 {
     return heap->arr[1];
+}
+
+bool MinHeap_empty(MinHeap* heap)
+{
+    return heap->cur_size == 0;
 }

@@ -10,11 +10,18 @@ typedef struct graph {
     uint64_t vertex_count;
     uint64_t edge_count;
 } Graph;
+
+typedef struct pagerank {
+    uint64_t rank;
+    uint64_t idx;
+} Pagerank;
   
 int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node);
 Graph* init_graph(FILE* file);
+Pagerank* init_pageranks(uint64_t vertex_count);
+int pagerank_cmp(const void* a, const void* b);
 void free_graph(Graph* g);
-void calculate_pageranks(Graph* G, uint64_t* pageranks,  double d, uint64_t k);
+void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k);
 
 /* 
  * Instead of making a list of nodes, where each node has an adjacency list,

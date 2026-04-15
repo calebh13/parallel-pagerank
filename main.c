@@ -6,11 +6,8 @@
 
 #include "graph.h"
 #include "test_graph.h"
+#include "heap.h"
 
-int cmp(const uint64_t* a, const uint64_t* b)
-{
-    return (*a > *b) - (*a < *b);
-}
 
 int main(int argc, char* argv[])
 {
@@ -66,13 +63,35 @@ int main(int argc, char* argv[])
     printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", G->vertex_count, G->edge_count);
     test_graph(G, file);
 
-    uint64_t* pageranks = calloc(G->vertex_count, sizeof(uint64_t));
+    Pagerank* pageranks = init_pageranks(G->vertex_count);
     calculate_pageranks(G, pageranks, D, K);
     for(uint64_t i = 0; i < G->vertex_count / 10; i++) {
-        printf("pr[%"PRIu64"] = %"PRIu64"\n", i, pageranks[i]);
+        printf("pr[%"PRIu64"] = %"PRIu64"\n", i, pageranks[i].rank);
     }
 
-    // TODO: make tuple struct, put it in maxheap so we get the specified top-k
+    // now add to heap and keep size limited
+    const int num_to_show = 5;
+    
+    MinHeap* heap = MinHeap_init(num_to_show);     
+    for(uint64_t i = 0; i < G->vertex_count; i++) {
+        if (heap->cur_size == heap->max_size) {
+            // If we're at max size, only insert if we're adding a new better value.
+            if (pageranks[i].rank > ((Pagerank*)MinHeap_peek(heap))->rank) {
+                MinHeap_pop(heap, pagerank_cmp);
+                MinHeap_insert(heap, &pageranks[i], pagerank_cmp);
+            }
+        } else {
+            // if we're not at max size, get there
+            MinHeap_insert(heap, &pageranks[i], pagerank_cmp);
+        }
+    }
+    
+    printf("\nTop %d nodes: \n", num_to_show);
+    for(int i = 0; i < num_to_show; i++) {
+        Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
+        printf("%d. Node %"PRIu64": %"PRIu64"\n", (num_to_show - i), max->idx, max->rank);
+    }
+    
 
     fclose(file);
     return 0;

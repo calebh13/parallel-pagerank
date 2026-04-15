@@ -77,8 +77,24 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
     free(line);
 }
 
+Pagerank* init_pageranks(uint64_t vertex_count)
+{
+    Pagerank* pageranks = malloc(vertex_count * sizeof(Pagerank));
+    if (!pageranks) return NULL;
+    for(int i = 0; i < vertex_count; i++) {
+        pageranks[i].rank = 0;
+        pageranks[i].idx = i;
+    }
+    return pageranks;
+}
 
-void calculate_pageranks(Graph* G, uint64_t* pageranks,  double d, uint64_t k){
+int pagerank_cmp(const void* a, const void* b)
+{
+    Pagerank* pr_a = (Pagerank*)a, *pr_b = (Pagerank*)b;
+    return (pr_a->rank > pr_b->rank) - (pr_a->rank < pr_b->rank);
+}
+
+void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k){
     omp_set_num_threads(omp_get_num_procs());
     
     // Each thread should get a chunk of the array. We know how long the array is, and all chunks are equal work, so just use static scheduling
@@ -114,7 +130,7 @@ void calculate_pageranks(Graph* G, uint64_t* pageranks,  double d, uint64_t k){
                 }
 
                 #pragma omp atomic update
-                pageranks[curnode]++;
+                pageranks[curnode].rank++;
             }
         }
     }

@@ -1,14 +1,16 @@
 #include <stdlib.h>
 #include <inttypes.h>
+#include <stdbool.h>
 
 typedef struct MaxHeap {
     void** arr;
     size_t cur_size;
     size_t max_size;
-} MaxHeap;
+} MinHeap;
 
 // If max_size < 0, then it will be unbounded
-MaxHeap* MaxHeap_init(size_t max_size);
-void MaxHeap_insert(MaxHeap* heap, void* x, int (*cmp)(const void *, const void *));
-void* MaxHeap_pop(MaxHeap* heap, int (*compar)(const void *, const void *));
-void* MaxHeap_peek(MaxHeap* heap);
+MinHeap* MinHeap_init(size_t max_size);
+void MinHeap_insert(MinHeap* heap, void* x, int (*cmp)(const void *, const void *));
+void* MinHeap_pop(MinHeap* heap, int (*compar)(const void *, const void *));
+void* MinHeap_peek(MinHeap* heap);
+bool MinHeap_empty(MinHeap* heap);
