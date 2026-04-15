@@ -51,7 +51,7 @@ static void build_edges_and_offsets(Graph* g, FILE* file)
     while (getline(&line, &n, file) != -1) {
         if (!parse_edge(line, &in_node, &out_node)) continue;
         /* CSR logic: we make a list of all outgoing edges, and if we are starting a new node, 
-         * record in `offsets` the index of where itd in bs neighbors begin in `edges`. */
+         * record in `offsets` the index of where its neighbors begin in `edges`. */
         g->edges[edges] = out_node;
         if (in_node != prev_node) {
             /* Since the list is in sorted order, everything we didn't see in between

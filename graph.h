@@ -7,8 +7,8 @@
 typedef struct graph {
     uint64_t* edges;
     uint64_t* offsets;
-    uint64_t vertex_count;
-    uint64_t edge_count;
+    size_t vertex_count;
+    size_t edge_count;
 } Graph;
   
 int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node);
@@ -27,8 +27,9 @@ void free_graph(Graph* g);
  * Suppose a graph has this structure:
  * Node 0 -> 2,5
  * Node 1 -> 0
- * Node 2 -> 1,3,4
- * Node 3 -> nothing
+ * Node 2 -> nothing
+ * Node 3 -> 1,3,4
+ * Node 4 -> nothing
  * This results in `edges = {2, 5, 0, 1, 3, 4}`
  * But notice we have no idea when node 0's neighbors stop and node 1's neighbors begin.
  * To determine this, we will use `offsets`. 
@@ -38,8 +39,9 @@ void free_graph(Graph* g);
  * offsets[] = {
  * 0, // node 0 neighbors start at edges[0]
  * 2, // node 1 neighbors start at edges[2]
- * 3, // node 2 neighbors start at edges[3]
- * 6, // node 3 neighbors start at edges[6]
+ * 3, // node 2 has no neighbors
+ * 3, // node 3 neighbors start at edges[3]
+ * 6, // node 4 neighbors start at edges[6]
  * 6  // sentinel: total number of edges (we're done)
  * };
  *
