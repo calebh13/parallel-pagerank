@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
             Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
             // compute fraction of visits that occurred at this node
             double rank = ((double)max->hits / K) / G->vertex_count;
-            printf("%d. Node %"PRIu64": %.7f\n", (num_to_show - i), max->idx, rank);
+            printf("Rank: %d. Node ID: %"PRIu64" PageRank: %.7f\n", (num_to_show - i), max->idx, rank);
         }
         printf("\n");
     // }
