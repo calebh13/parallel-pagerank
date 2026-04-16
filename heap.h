@@ -1,3 +1,5 @@
+#ifndef HEAP
+#define HEAP
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -14,3 +16,5 @@ void MinHeap_insert(MinHeap* heap, void* x, int (*cmp)(const void *, const void 
 void* MinHeap_pop(MinHeap* heap, int (*compar)(const void *, const void *));
 void* MinHeap_peek(MinHeap* heap);
 bool MinHeap_empty(MinHeap* heap);
+
+#endif

@@ -3,11 +3,14 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <getopt.h>
+#include <omp.h>
 
 #include "graph.h"
 #include "test_graph.h"
 #include "heap.h"
 
+const int SEC_TO_US = 1000000;
+const bool DEBUG = false;
 
 int main(int argc, char* argv[])
 {
@@ -57,17 +60,24 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    printf("K = %"PRIu64", D = %f, filename = %s\n", K, D, filename);
-    printf("Building graph.\n");
+    if (DEBUG) printf("K = %"PRIu64", D = %f, filename = %s\n", K, D, filename);
+    if (DEBUG) printf("Building graph.\n");
     Graph* G = init_graph(file); 
-    printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", G->vertex_count, G->edge_count);
-    test_graph(G, file);
+    if (DEBUG) printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", G->vertex_count, G->edge_count);
+    if (DEBUG) test_graph(G, file);
 
     Pagerank* pageranks = init_pageranks(G->vertex_count);
+    double start = omp_get_wtime();
     calculate_pageranks(G, pageranks, D, K);
+    double end = omp_get_wtime();
+    printf("D,K,time (us),\n");
+    printf("%.1f,%"PRIu64",%lld\n", D, K, (long long)((end - start) * SEC_TO_US));
+
+    /* 
     for(uint64_t i = 0; i < G->vertex_count / 10; i++) {
         printf("pr[%"PRIu64"] = %"PRIu64"\n", i, pageranks[i].rank);
     }
+    */
 
     // now add to heap and keep size limited
     const int num_to_show = 5;
@@ -86,10 +96,12 @@ int main(int argc, char* argv[])
         }
     }
     
-    printf("\nTop %d nodes: \n", num_to_show);
-    for(int i = 0; i < num_to_show; i++) {
-        Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
-        printf("%d. Node %"PRIu64": %"PRIu64"\n", (num_to_show - i), max->idx, max->rank);
+    if (DEBUG) { 
+        printf("\nTop %d nodes: \n", num_to_show);
+        for(int i = 0; i < num_to_show; i++) {
+            Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
+            printf("%d. Node %"PRIu64": %"PRIu64"\n", (num_to_show - i), max->idx, max->rank);
+        }
     }
     
 

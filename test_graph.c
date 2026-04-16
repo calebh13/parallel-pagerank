@@ -30,5 +30,5 @@ void test_graph(Graph* g, FILE* file)
 
     free(line);
     printf("%"PRIu64"/%"PRIu64" edges verified OK\n", edges - failures, edges);
-    if (!failures) printf("Tests passed!\n");
+    if (!failures) printf("Tests passed!\n"); else exit(EXIT_FAILURE);
 }
