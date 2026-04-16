@@ -82,7 +82,7 @@ Pagerank* init_pageranks(uint64_t vertex_count)
     Pagerank* pageranks = malloc(vertex_count * sizeof(Pagerank));
     if (!pageranks) return NULL;
     for(int i = 0; i < vertex_count; i++) {
-        pageranks[i].rank = 0;
+        pageranks[i].hits = 0;
         pageranks[i].idx = i;
     }
     return pageranks;
@@ -91,11 +91,11 @@ Pagerank* init_pageranks(uint64_t vertex_count)
 int pagerank_cmp(const void* a, const void* b)
 {
     Pagerank* pr_a = (Pagerank*)a, *pr_b = (Pagerank*)b;
-    return (pr_a->rank > pr_b->rank) - (pr_a->rank < pr_b->rank);
+    return (pr_a->hits > pr_b->hits) - (pr_a->hits < pr_b->hits);
 }
 
-void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k){
-    omp_set_num_threads(omp_get_num_procs());
+void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k, int p){
+    omp_set_num_threads(p);
     
     // Each thread should get a chunk of the array. We know how long the array is, and all chunks are equal work, so just use static scheduling
     #pragma omp parallel
@@ -130,7 +130,7 @@ void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k){
                 }
 
                 #pragma omp atomic update
-                pageranks[curnode].rank++;
+                pageranks[curnode].hits++;
             }
         }
     }

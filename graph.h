@@ -12,7 +12,7 @@ typedef struct graph {
 } Graph;
 
 typedef struct pagerank {
-    uint64_t rank;
+    uint64_t hits;
     uint64_t idx;
 } Pagerank;
   
@@ -21,7 +21,7 @@ Graph* init_graph(FILE* file);
 Pagerank* init_pageranks(uint64_t vertex_count);
 int pagerank_cmp(const void* a, const void* b);
 void free_graph(Graph* g);
-void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k);
+void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k, int p);
 
 /* 
  * Instead of making a list of nodes, where each node has an adjacency list,

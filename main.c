@@ -16,11 +16,12 @@ int main(int argc, char* argv[])
 {
     uint64_t K = 0;
     double D = 0.0;
+    int p = 0;
     char* filename = NULL;
     int opt;
 
     // parse command line options
-    while ((opt = getopt(argc, argv, "k:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "k:d:p:")) != -1) {
         switch (opt) {
             case 'k':
                 K = (uint64_t)strtoull(optarg, NULL, 10);
@@ -28,10 +29,14 @@ int main(int argc, char* argv[])
             case 'd':
                 D = strtod(optarg, NULL);
                 break;
+            case 'p':
+                p = (int)strtol(optarg, NULL, 10);
+                break;
             default: 
-                printf("Usage: %s -k <K> -d <D> filename\n", argv[0]); 
+                printf("Usage: %s -k <K> -d <D> -p <p> filename\n", argv[0]); 
                 printf("\tK: length of random walk (max val. 2^64 - 1)\n"); 
                 printf("\tD: damping ratio - probability of jumping to random node (from 0 to 1)\n"); 
+                printf("\np: number of processes to spawn\n");
                 printf("\tFilename: filename of input graph to simulate walks on\n"); 
                 exit(EXIT_FAILURE);
         }
@@ -43,6 +48,10 @@ int main(int argc, char* argv[])
     }
     if (D == 0.0) {
         fprintf(stderr, "%s: missing -d argument\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    if (p == 0) {
+        fprintf(stderr, "%s: missing -p argument\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -68,10 +77,10 @@ int main(int argc, char* argv[])
 
     Pagerank* pageranks = init_pageranks(G->vertex_count);
     double start = omp_get_wtime();
-    calculate_pageranks(G, pageranks, D, K);
+    calculate_pageranks(G, pageranks, D, K, p);
     double end = omp_get_wtime();
-    printf("D,K,time (us),\n");
-    printf("%.1f,%"PRIu64",%lld\n", D, K, (long long)((end - start) * SEC_TO_US));
+    printf("D,K,p,time (us),\n");
+    printf("%.1f,%"PRIu64",%d,%lld\n", D, K, p, (long long)((end - start) * SEC_TO_US));
 
     /* 
     for(uint64_t i = 0; i < G->vertex_count / 10; i++) {
@@ -86,7 +95,7 @@ int main(int argc, char* argv[])
     for(uint64_t i = 0; i < G->vertex_count; i++) {
         if (heap->cur_size == heap->max_size) {
             // If we're at max size, only insert if we're adding a new better value.
-            if (pageranks[i].rank > ((Pagerank*)MinHeap_peek(heap))->rank) {
+            if (pageranks[i].hits > ((Pagerank*)MinHeap_peek(heap))->hits) {
                 MinHeap_pop(heap, pagerank_cmp);
                 MinHeap_insert(heap, &pageranks[i], pagerank_cmp);
             }
@@ -97,11 +106,14 @@ int main(int argc, char* argv[])
     }
     
     // if (DEBUG) { 
-        printf("\nTop %d nodes: \n", num_to_show);
+        printf("Top %d nodes: \n", num_to_show);
         for(int i = 0; i < num_to_show; i++) {
             Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
-            printf("%d. Node %"PRIu64": %"PRIu64"\n", (num_to_show - i), max->idx, max->rank);
+            // compute fraction of visits that occurred at this node
+            double rank = ((double)max->hits / K) / G->vertex_count;
+            printf("%d. Node %"PRIu64": %.7f\n", (num_to_show - i), max->idx, rank);
         }
+        printf("\n");
     // }
     
 
