@@ -96,13 +96,13 @@ int main(int argc, char* argv[])
         }
     }
     
-    if (DEBUG) { 
+    // if (DEBUG) { 
         printf("\nTop %d nodes: \n", num_to_show);
         for(int i = 0; i < num_to_show; i++) {
             Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
             printf("%d. Node %"PRIu64": %"PRIu64"\n", (num_to_show - i), max->idx, max->rank);
         }
-    }
+    // }
     
 
     fclose(file);
