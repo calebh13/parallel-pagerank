@@ -69,11 +69,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (DEBUG) printf("K = %"PRIu64", D = %f, filename = %s\n", K, D, filename);
-    if (DEBUG) printf("Building graph.\n");
     Graph* G = init_graph(file); 
-    if (DEBUG) printf("Vertex count: %"PRIu64". Edge count: %"PRIu64".\n", G->vertex_count, G->edge_count);
-    if (DEBUG) test_graph(G, file);
 
     Pagerank* pageranks = init_pageranks(G->vertex_count);
     double start = omp_get_wtime();
@@ -81,12 +77,6 @@ int main(int argc, char* argv[])
     double end = omp_get_wtime();
     printf("D,K,p,time (us),\n");
     printf("%.1f,%"PRIu64",%d,%lld\n", D, K, p, (long long)((end - start) * SEC_TO_US));
-
-    /* 
-    for(uint64_t i = 0; i < G->vertex_count / 10; i++) {
-        printf("pr[%"PRIu64"] = %"PRIu64"\n", i, pageranks[i].rank);
-    }
-    */
 
     // now add to heap and keep size limited
     const int num_to_show = 5;
@@ -105,18 +95,19 @@ int main(int argc, char* argv[])
         }
     }
     
-    // if (DEBUG) { 
-        printf("Top %d nodes: \n", num_to_show);
-        for(int i = 0; i < num_to_show; i++) {
-            Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
-            // compute fraction of visits that occurred at this node
-            double rank = ((double)max->hits / K) / G->vertex_count;
-            printf("Rank: %d. Node ID: %"PRIu64" PageRank: %.7f\n", (num_to_show - i), max->idx, rank);
-        }
-        printf("\n");
-    // }
-    
+    printf("Top %d nodes: \n", num_to_show);
+    for(int i = 0; i < num_to_show; i++) {
+        Pagerank* max = (Pagerank*)MinHeap_pop(heap, pagerank_cmp);
+        // compute fraction of visits that occurred at this node
+        double rank = ((double)max->hits / K) / G->vertex_count;
+        printf("%d. Node %"PRIu64": %.7f\n", (num_to_show - i), max->idx, rank);
+    }
+    printf("\n");    
 
+    free(pageranks);
+    free(heap->arr);
+    free(heap);
+    free_graph(G);
     fclose(file);
     return 0;
 }

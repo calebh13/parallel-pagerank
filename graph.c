@@ -85,6 +85,7 @@ Pagerank* init_pageranks(uint64_t vertex_count)
         pageranks[i].hits = 0;
         pageranks[i].idx = i;
     }
+
     return pageranks;
 }
 
@@ -94,7 +95,7 @@ int pagerank_cmp(const void* a, const void* b)
     return (pr_a->hits > pr_b->hits) - (pr_a->hits < pr_b->hits);
 }
 
-void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k, int p){
+void calculate_pageranks(Graph* G, Pagerank* pageranks,  double d, uint64_t k, int p) {
     omp_set_num_threads(p);
     
     // Each thread should get a chunk of the array. We know how long the array is, and all chunks are equal work, so just use static scheduling
@@ -147,6 +148,7 @@ Graph* init_graph(FILE* file)
         fprintf(stderr, "error: too many vertices or edges (%"PRIu64") for size_t (%zu)", larger, SIZE_MAX);
         exit(EXIT_FAILURE);
     }
+    
     g->edges = calloc((size_t)g->edge_count, sizeof(uint64_t));
     g->offsets = calloc((size_t)g->vertex_count + 1, sizeof(uint64_t)); // includes sentinel at end
     if (!g->edges || !g->offsets) exit(EXIT_FAILURE);
