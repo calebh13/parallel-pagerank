@@ -81,7 +81,7 @@ Pagerank* init_pageranks(uint64_t vertex_count)
 {
     Pagerank* pageranks = malloc(vertex_count * sizeof(Pagerank));
     if (!pageranks) return NULL;
-    for(int i = 0; i < vertex_count; i++) {
+    for(uint64_t i = 0; i < vertex_count; i++) {
         pageranks[i].hits = 0;
         pageranks[i].idx = i;
     }
