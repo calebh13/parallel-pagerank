@@ -6,7 +6,6 @@
 #include <omp.h>
 
 #include "graph.h"
-#include "test_graph.h"
 #include "heap.h"
 
 const int SEC_TO_US = 1000000;
@@ -51,8 +50,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     if (p == 0) {
-        fprintf(stderr, "%s: missing -p argument\n", argv[0]);
-        exit(EXIT_FAILURE);
+        p = omp_get_num_procs();
     }
 
 
