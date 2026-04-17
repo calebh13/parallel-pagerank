@@ -29,6 +29,7 @@ int parse_edge(const char* line, uint64_t* in_node, uint64_t* out_node)
     return 1;
 }
 
+// Parses the input file and determines how many uniques vertices and edges are in the graph
 static void set_edge_and_vertex_counts(Graph* g, FILE* file)
 {
     char* line = NULL;
@@ -40,6 +41,7 @@ static void set_edge_and_vertex_counts(Graph* g, FILE* file)
         if (in_node > max) max = in_node;
         if (out_node > max) max = out_node;
     }
+    
     g->edge_count = edges;
     g->vertex_count = max + 1;
     free(line);
