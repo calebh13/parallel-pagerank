@@ -1,7 +1,6 @@
 #ifndef HEAP
 #define HEAP
 #include <stdlib.h>
-#include <inttypes.h>
 #include <stdbool.h>
 
 typedef struct MaxHeap {
